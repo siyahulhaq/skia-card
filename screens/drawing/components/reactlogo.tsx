@@ -1,17 +1,33 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import {
-    BlurMask,
+  BlurMask,
   Canvas,
   Circle,
+  DashPathEffect,
+  DiscretePathEffect,
+  Extrapolate,
   Group,
   Oval,
   Paint,
+  Path,
   RadialGradient,
   rect,
+  Skia,
   SweepGradient,
+  Transforms2d,
+  useSharedValueEffect,
+  useValue,
   vec,
 } from "@shopify/react-native-skia";
+import {
+  interpolate,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
+
+const oval = Skia.Path.Make();
 
 const { width, height } = Dimensions.get("window");
 
@@ -26,10 +42,60 @@ const rct = rect(
   RECT_HEIGHT
 );
 
-const c1= "#3498db";
+oval.addOval(rct);
+
+const c1 = "#3498db";
 const c2 = "lightblue";
 
 const Reactlogo = () => {
+  const rValue = useSharedValue(0);
+
+  useEffect(() => {
+    rValue.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true);
+  }, []);
+
+  const skValue = useValue<Transforms2d>([
+    {
+      rotate: 0,
+    },
+    { scale: -1 },
+  ]);
+
+  const skValue2 = useValue<Transforms2d>([
+    {
+      rotate: 0,
+    },
+    { scale: -1 },
+  ]);
+
+  const skValue3 = useValue<number>(0);
+
+  useSharedValueEffect(() => {
+    skValue.current = [
+      {
+        rotate: interpolate(
+          rValue.value,
+          [0, 1],
+          [0, Math.PI / 3],
+          Extrapolate.CLAMP
+        ),
+      },
+      { scale: -1 },
+    ];
+    skValue2.current = [
+      {
+        rotate: interpolate(
+          rValue.value,
+          [0, 1],
+          [0, -Math.PI / 3],
+          Extrapolate.CLAMP
+        ),
+      },
+      { scale: -1 },
+    ];
+    skValue3.current = rValue.value;
+  }, rValue);
+
   return (
     <Canvas style={styles.canva}>
       <Circle c={center} r={25}>
@@ -42,12 +108,14 @@ const Reactlogo = () => {
       <Group style="stroke" strokeWidth={18}>
         <SweepGradient c={center} colors={[c1, c2, c1]} />
         <BlurMask style="inner" blur={10} />
-        <Oval rect={rct} />
-        <Group transform={[{ rotate: Math.PI / 3 }, {scale: -1 }]} origin={center}>
-          <Oval rect={rct} />
+        {/* <DiscretePathEffect deviation={3} length={10} /> */}
+        <DashPathEffect intervals={[10, 5]} />
+        <Path path={oval} end={skValue3} />
+        <Group transform={skValue} origin={center}>
+          <Path path={oval} end={skValue3} />
         </Group>
-        <Group transform={[{ rotate: -Math.PI / 3 }, {scale: -1 }]} origin={center}>
-          <Oval rect={rct} />
+        <Group transform={skValue2} origin={center}>
+          <Path path={oval} end={skValue3} />
         </Group>
       </Group>
     </Canvas>

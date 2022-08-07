@@ -18,6 +18,14 @@ const screens = [
     name: NavigationRoutes.Drawing,
     title: "Drawing",
   },
+  {
+    name: NavigationRoutes.Effects,
+    title: "Effects",
+  },
+  {
+    name: NavigationRoutes.Hue,
+    title: "Hue",
+  },
 ];
 
 type HomeProps = StackNavigationProps<Routes, NavigationRoutes.Home>

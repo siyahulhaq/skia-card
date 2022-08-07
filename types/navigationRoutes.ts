@@ -2,6 +2,8 @@ export enum NavigationRoutes {
     Home = 'Home',
     CreditCard = 'CreditCard',
     Drawing = 'Drawing',
+    Effects = 'Effects',
+    Hue = 'Hue',
 }
 
 import {ParamListBase, RouteProp} from '@react-navigation/native';
@@ -18,4 +20,6 @@ export type Routes = {
   Home: undefined;
   CreditCard: undefined;
   Drawing: undefined;
+  Effects: undefined;
+  Hue: undefined;
 };
